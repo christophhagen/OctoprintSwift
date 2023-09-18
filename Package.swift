@@ -4,7 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "OctoprintSwift",
-    platforms: [.macOS(.v13), .iOS(.v13)],
+    platforms: [.macOS(.v11), .iOS(.v13)],
     products: [.library(name: "OctoprintSwift", targets: ["OctoprintSwift"])],
     dependencies: [],
     targets: [
