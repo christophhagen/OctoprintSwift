@@ -25,3 +25,25 @@ extension URLSession {
 }
 
 #endif
+
+extension URLSession {
+    
+    func performRequest<T>(to url: URL, path: Route, method: HTTPMethod = .post, body: T) async throws -> (data: Data, code: Int) where T: Encodable {
+        var request = URLRequest(url: url, path: path, method: method)
+        try request.setBody(body)
+        return try await perform(request: request)
+    }
+
+    private func performRequest(to url: URL, path: Route, method: HTTPMethod = .post) async throws -> (data: Data, code: Int) {
+        let request = URLRequest(url: url, path: path, method: method)
+        return try await perform(request: request)
+    }
+
+    func perform(request: URLRequest) async throws -> (data: Data, code: Int) {
+        let (data, response) = try await data(for: request)
+        guard let response = response as? HTTPURLResponse else {
+            throw OctoprintError.invalidResponse
+        }
+        return (data, response.statusCode)
+    }
+}
