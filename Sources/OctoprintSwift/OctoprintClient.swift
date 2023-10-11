@@ -74,11 +74,7 @@ public actor OctoprintClient {
         autoconnect: Bool? = nil)
     async throws {
         let settings = Connect(port: port, baudrate: baudrate, printerProfile: printerProfile, save: save, autoconnect: autoconnect)
-        let request = try request(to: .connectionStatus, method: .post, body: settings)
-        let code = try await session.perform(request: request).code
-        guard code == 204 else {
-            throw OctoprintError.invalidResponse
-        }
+        try await requestAndExpectNoContent(route: .connectionStatus, body: settings)
     }
 
     // MARK: Application keys
@@ -108,11 +104,7 @@ public actor OctoprintClient {
 
     private func applicationKeysCommand(_ command: ApplicationKeyCommand.Command, key: String) async throws {
         let command = ApplicationKeyCommand(command: command, key: key)
-        let request = try request(to: .applicationKeysCommand, method: .post, body: command)
-        let code = try await session.perform(request: request).code
-        guard code == 204 else {
-            throw OctoprintError.invalidResponse
-        }
+        try await requestAndExpectNoContent(route: .applicationKeysCommand, body: command)
     }
 
     /**
@@ -145,6 +137,19 @@ public actor OctoprintClient {
             return try decoder.decode(T.self, from: data)
         case 403:
             throw OctoprintError.invalidCredentials
+        default:
+            throw OctoprintError.invalidResponse
+        }
+    }
+
+    private func requestAndExpectNoContent<T>(route: Route, body: T) async throws where T: Encodable {
+        let request = try request(to: route, method: .post, body: body)
+        let code = try await session.perform(request: request).code
+        switch code {
+        case 204:
+            return
+        case 400:
+            throw OctoprintError.badRequest
         default:
             throw OctoprintError.invalidResponse
         }
