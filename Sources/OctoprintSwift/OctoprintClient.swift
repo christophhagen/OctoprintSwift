@@ -56,6 +56,31 @@ public actor OctoprintClient {
         try await requestAndConvert(to: .connectionStatus, method: .get)
     }
 
+    /**
+     Instructs OctoPrint to connect or, if already connected, reconnect to the printer.
+
+     - Parameter port: Specific port to connect to. If not set the current `portPreference` will be used, or if no preference is available auto detection will be attempted.
+     - Parameter baudrate: Specific baudrate to connect with. If not set the current `baudratePreference` will be used, or if no preference is available auto detection will be attempted.
+     - Parameter printerProfile: Specific printer profile to use for connection. If not set the current default printer profile will be used.
+     - Parameter save: Whether to save the request’s `port` and `baudrate` settings as new preferences. Defaults to `false`.
+     - Parameter autoconnect:Whether to automatically connect to the printer on OctoPrint’s startup in the future. If not set no changes will be made to the current configuration.
+     - SeeAlso: [API function description](https://docs.octoprint.org/en/master/api/connection.html#post--api-connection)
+     */
+    public func connect(
+        port: String? = nil,
+        baudrate: Int? = nil,
+        printerProfile: String? = nil,
+        save: Bool = false,
+        autoconnect: Bool? = nil)
+    async throws {
+        let settings = Connect(port: port, baudrate: baudrate, printerProfile: printerProfile, save: save, autoconnect: autoconnect)
+        let request = try request(to: .connectionStatus, method: .post, body: settings)
+        let code = try await session.perform(request: request).code
+        guard code == 204 else {
+            throw OctoprintError.invalidResponse
+        }
+    }
+
     // MARK: Application keys
 
     /**
