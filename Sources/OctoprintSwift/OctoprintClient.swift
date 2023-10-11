@@ -42,6 +42,8 @@ public actor OctoprintClient {
         try await requestAndConvert(to: .serverInformation, method: .get)
     }
 
+    // MARK: Connection
+
     /**
      Get connection settings.
 
@@ -50,7 +52,7 @@ public actor OctoprintClient {
      - Note: Requires the `STATUS` permission.
      - SeeAlso: [API function description](https://docs.octoprint.org/en/master/api/connection.html#get-connection-settings)
      */
-    func getConnectionSettings() async throws -> ConnectionStatus {
+    public func getConnectionSettings() async throws -> ConnectionStatus {
         try await requestAndConvert(to: .connectionStatus, method: .get)
     }
 
