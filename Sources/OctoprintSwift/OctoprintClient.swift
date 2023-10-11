@@ -64,7 +64,7 @@ public actor OctoprintClient {
      - Parameter printerProfile: Specific printer profile to use for connection. If not set the current default printer profile will be used.
      - Parameter save: Whether to save the request’s `port` and `baudrate` settings as new preferences. Defaults to `false`.
      - Parameter autoconnect:Whether to automatically connect to the printer on OctoPrint’s startup in the future. If not set no changes will be made to the current configuration.
-     - SeeAlso: [API function description](https://docs.octoprint.org/en/master/api/connection.html#post--api-connection)
+     - SeeAlso: [API function description](https://docs.octoprint.org/en/master/api/connection.html#issue-a-connection-command)
      */
     public func connect(
         port: String? = nil,
@@ -75,6 +75,27 @@ public actor OctoprintClient {
     async throws {
         let settings = Connect(command: .connect, port: port, baudrate: baudrate, printerProfile: printerProfile, save: save, autoconnect: autoconnect)
         try await requestAndExpectNoContent(route: .connectionStatus, body: settings)
+    }
+
+    /**
+     Instructs OctoPrint to disconnect from the printer.
+
+     - SeeAlso: [API function description](https://docs.octoprint.org/en/master/api/connection.html#issue-a-connection-command)
+     */
+    public func disconnect() async throws {
+        let command = Connect(command: .disconnect)
+        try await requestAndExpectNoContent(route: .connectionStatus, body: command)
+    }
+
+    /**
+     Fakes an acknowledgment message for OctoPrint in case one got lost on the serial line and the communication with the printer since stalled.
+
+     This should only be used in “emergencies” (e.g. to save prints), the reason for the lost acknowledgment should always be properly investigated and removed instead of depending on this “symptom solver”.
+     - SeeAlso: [API function description](https://docs.octoprint.org/en/master/api/connection.html#issue-a-connection-command)
+     */
+    public func fakeAcknowledgement() async throws {
+        let command = Connect(command: .fakeAck)
+        try await requestAndExpectNoContent(route: .connectionStatus, body: command)
     }
 
     // MARK: Application keys
