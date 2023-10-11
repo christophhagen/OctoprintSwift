@@ -14,6 +14,7 @@ enum Route: RawRepresentable {
     case applicationKeysCommand
     case fetchApplicationKeys
     case fetchApplicationKeysForAllUsers
+    case connectionStatus
 
     init?(rawValue: String) {
         return nil
@@ -35,6 +36,7 @@ enum Route: RawRepresentable {
         case .applicationKeysCommand: return "/api/plugin/appkeys"
         case .fetchApplicationKeys: return "/api/plugin/appkeys"
         case .fetchApplicationKeysForAllUsers: return "/api/plugin/appkeys?all"
+        case .connectionStatus: return "/api/connection"
         }
     }
 }

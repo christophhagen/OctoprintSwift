@@ -43,6 +43,20 @@ public actor OctoprintClient {
     }
 
     /**
+     Get connection settings.
+
+     Retrieve the current connection settings, including information regarding the available baudrates and serial ports and the current connection state.
+
+     - Note: Requires the `STATUS` permission.
+     - SeeAlso: [API function description](https://docs.octoprint.org/en/master/api/connection.html#get-connection-settings)
+     */
+    func getConnectionSettings() async throws -> ConnectionStatus {
+        try await requestAndConvert(to: .connectionStatus, method: .get)
+    }
+
+    // MARK: Application keys
+
+    /**
      Revokes an existing application key.
 
      Must belong to the user issuing the command, unless the user has admin rights in which case they may revoke any application key in the system.
