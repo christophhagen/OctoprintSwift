@@ -73,7 +73,7 @@ public actor OctoprintClient {
         save: Bool = false,
         autoconnect: Bool? = nil)
     async throws {
-        let settings = Connect(port: port, baudrate: baudrate, printerProfile: printerProfile, save: save, autoconnect: autoconnect)
+        let settings = Connect(command: .connect, port: port, baudrate: baudrate, printerProfile: printerProfile, save: save, autoconnect: autoconnect)
         try await requestAndExpectNoContent(route: .connectionStatus, body: settings)
     }
 
