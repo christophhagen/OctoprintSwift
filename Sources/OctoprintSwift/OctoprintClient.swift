@@ -26,18 +26,20 @@ public actor OctoprintClient {
      Retrieve information regarding server and API version.
 
      Returns a JSON object with three keys, `api` containing the API version, `server` containing the server version, `text` containing the server version including the prefix `OctoPrint` (to determine that this is indeed a genuine OctoPrint instance).
+     - SeeAlso: [API function description](https://docs.octoprint.org/en/master/api/version.html#version-information)
      */
     public func getVersion() async throws -> VersionResponse {
-        try await requestAndConvert(to: .apiVersion)
+        try await requestAndConvert(to: .apiVersion, method: .get)
     }
 
     /**
      Retrieve information regarding server status.
 
      Returns an object with two keys, `version` containing the server version and `safemode` containing one of `settings`, `incomplete_startup` or `flag` to indicate the reason the server is running in safe mode, or the boolean value of `false` if it’s not running in safe mode.
+     - SeeAlso: [API function description](https://docs.octoprint.org/en/master/api/server.html#server-information)
      */
     public func getServerInformation() async throws -> ServerInformation {
-        try await requestAndConvert(to: .serverInformation)
+        try await requestAndConvert(to: .serverInformation, method: .get)
     }
 
     /**
@@ -65,7 +67,7 @@ public actor OctoprintClient {
 
     private func applicationKeysCommand(_ command: ApplicationKeyCommand.Command, key: String) async throws {
         let command = ApplicationKeyCommand(command: command, key: key)
-        let request = try request(to: .applicationKeysCommand, body: command)
+        let request = try request(to: .applicationKeysCommand, method: .post, body: command)
         let code = try await session.perform(request: request).code
         guard code == 204 else {
             throw OctoprintError.invalidResponse
@@ -79,18 +81,18 @@ public actor OctoprintClient {
      - SeeAlso: [API function description](https://docs.octoprint.org/en/master/bundledplugins/appkeys.html#fetch-list-of-existing-application-keys)
      */
     public func fetchListOfApplicationKeys(forAllUsers: Bool) async throws -> ListResponse {
-        try await requestAndConvert(to: forAllUsers ? .fetchApplicationKeysForAllUsers : .fetchApplicationKeys)
+        try await requestAndConvert(to: forAllUsers ? .fetchApplicationKeysForAllUsers : .fetchApplicationKeys, method: .get)
     }
 
     // MARK: Networking
 
-    private func request<T>(to path: Route, method: HTTPMethod = .post, body: T) throws -> URLRequest where T: Encodable {
+    private func request<T>(to path: Route, method: HTTPMethod, body: T) throws -> URLRequest where T: Encodable {
         var request = try URLRequest(url: url, path: path, method: method, body: body)
         request.addValue(apiKey, forHTTPHeaderField: "X-Api-Key")
         return request
     }
 
-    private func requestAndConvert<T>(to path: Route, method: HTTPMethod = .post) async throws -> T where T: Decodable {
+    private func requestAndConvert<T>(to path: Route, method: HTTPMethod) async throws -> T where T: Decodable {
         var request = URLRequest(url: url, path: path, method: method)
         request.addValue(apiKey, forHTTPHeaderField: "X-Api-Key")
         let (data, response) = try await session.data(for: request)

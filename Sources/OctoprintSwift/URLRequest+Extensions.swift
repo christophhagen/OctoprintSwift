@@ -11,12 +11,12 @@ extension URLRequest {
         httpBody = try JSONEncoder().encode(jsonPayload)
     }
 
-    init(url: URL, path: Route, method: HTTPMethod = .post) {
+    init(url: URL, path: Route, method: HTTPMethod) {
         self.init(url: url.appendingPathComponent(path.rawValue))
         self.httpMethod = method.rawValue
     }
 
-    init<T>(url: URL, path: Route, method: HTTPMethod = .post, body: T) throws where T: Encodable {
+    init<T>(url: URL, path: Route, method: HTTPMethod, body: T) throws where T: Encodable {
         self.init(url: url.appendingPathComponent(path.rawValue))
         self.httpMethod = method.rawValue
         httpBody = try JSONEncoder().encode(body)

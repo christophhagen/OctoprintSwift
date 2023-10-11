@@ -49,7 +49,7 @@ public actor RegistrationClient {
      */
     public func requestApplicationKey(applicationId: String, user: String?) async throws -> PendingAuthorizationDecision {
         let body = AuthorizationRequest(app: applicationId, user: user)
-        let request = try URLRequest(url: url, path: .requestAppKey, body: body)
+        let request = try URLRequest(url: url, path: .requestAppKey, method: .post, body: body)
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
             throw OctoprintError.invalidResponse
@@ -106,7 +106,7 @@ public actor RegistrationClient {
      */
     public func decideExistingAppKeyRequest(userToken: String, allow: Bool) async throws {
         let decision = DecisionRequest(decision: allow)
-        let request = try URLRequest(url: url, path: .decideExistingRequest(userToken: userToken), body: decision)
+        let request = try URLRequest(url: url, path: .decideExistingRequest(userToken: userToken), method: .post, body: decision)
         let code = try await session.perform(request: request).code
         guard code == 204 else {
             throw OctoprintError.invalidResponse
